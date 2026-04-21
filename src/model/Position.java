@@ -1,3 +1,5 @@
+package model;
+
 /**
  * Represents the different positions a player can play on the field.
  * Used to categorize players by their role and responsibilities in the team.

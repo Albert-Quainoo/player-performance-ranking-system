@@ -1,3 +1,5 @@
+package model;
+
 /**
  * Represents a player in a sports team management system.
  * A player has personal details, position, team affiliation, and performance records.

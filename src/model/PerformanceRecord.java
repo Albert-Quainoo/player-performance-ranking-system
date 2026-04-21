@@ -1,3 +1,5 @@
+package model;
+
 /**
  * PerformanceRecord class that tracks and manages football/soccer player performance statistics.
  * It maintains various metrics such as goals, assists, defensive actions, and disciplinary records.
@@ -47,7 +49,7 @@ public class PerformanceRecord {
     public PerformanceRecord() {
         this.goals = 0;
         this.assists = 0;
-        this.keyPasses =0;
+        this.keyPasses = 0;
         this.passesCompleted = 0;
         this.tacklesWon = 0;
         this.interceptions = 0;
@@ -242,6 +244,28 @@ public class PerformanceRecord {
         }
     }
 
+    /**
+    * Resets all performance statistics back to zero.
+    * Used to clear a player's record at the start of a new season or evaluation period.
+    */
+    public void resetStats() {
+        this.goals = 0;
+        this.assists = 0;
+        this.keyPasses = 0;
+        this.passesCompleted = 0;
+        this.shotsOnTarget = 0;
+        this.tacklesWon = 0;
+        this.interceptions = 0;
+        this.blocks = 0;
+        this.clearances = 0;
+        this.ballRecoveries = 0;
+        this.saves = 0;
+        this.goalsConceded = 0;
+        this.cleanSheets = 0;
+        this.yellowCards = 0;
+        this.redCards = 0;
+    }
+
     // ===== GETTER METHODS =====
 
     /**
@@ -403,17 +427,5 @@ public class PerformanceRecord {
                 + "Red Cards: " + redCards + "\n"
                 + "Clean Sheets: " + cleanSheets + "\n";
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
 }
