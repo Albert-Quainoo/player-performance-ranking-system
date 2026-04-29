@@ -3,6 +3,8 @@ package engine;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import model.Player;
 import model.Position;
@@ -45,17 +47,46 @@ public class RankingEngine {
     }
 
     public ArrayList<Player> getTopNPlayers(ArrayList<Player> players, int n){
+        if (n < 0){
+            throw new IllegalArgumentException("n cannot be negative");
+        }
         ArrayList <Player> rankedPlayersPerNList = rankPlayers(players);
         return new ArrayList<>(rankedPlayersPerNList.subList(0, Math.min(n, rankedPlayersPerNList.size()))); 
     }
 
+    public ArrayList<Player> filterByPosition(ArrayList<Player> players, Position position){
+        ArrayList<Player> filtered = new ArrayList<>();
+        for (Player p : players){
+            if (p.getPosition() == position){
+                filtered.add(p);
+            }
+        }
+        return filtered;
+    }
+
+    public LinkedHashMap<String, Double> getScoreBreakdown(Player player) {
+    RankingStrategy strategy = strategies.get(player.getPosition());
+    if (strategy == null) {
+        throw new IllegalArgumentException(
+            "No ranking strategy registered for position: " + player.getPosition()
+        );
+    }
+    return strategy.getBreakdown(player);
+}
+
     public String displayRankings(ArrayList<Player> players){
-        ArrayList <Player> rankedPlayers = rankPlayers(players);
-        StringBuilder sb = new StringBuilder();
+        Map<Player, Double> sortedCache = new LinkedHashMap<>();
+        for (Player p : players){
+            sortedCache.put(p, rank(p));
+        }
+        List<Player> ranked = new ArrayList<>(sortedCache.keySet());
+        ranked.sort((a,b) -> Double.compare(sortedCache.get(b),sortedCache.get(a))); 
+
+        StringBuilder sb = new StringBuilder(); 
         int rank = 1;
-         for (Player player : rankedPlayers){
+         for (Player player : ranked){
             sb.append(String.format("%d. %-20s | %-12s | Score: %.2f%n",
-            rank++, player.getName(), player.getPosition(), rank(player)));
+            rank++, player.getName(), player.getPosition(), sortedCache.get(player)));
         }
         return sb.toString();
     }

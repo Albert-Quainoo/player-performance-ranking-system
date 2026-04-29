@@ -1,5 +1,6 @@
 package ranking;
 
+import java.util.LinkedHashMap;
 import model.PerformanceRecord;
 import model.Player;
 
@@ -19,8 +20,20 @@ public class DefenderRankingStrategy implements RankingStrategy{
 
         return tackleScore + interceptionScore + clearanceScore + blockScore 
             + ballRecoveryScore + passesScore - yellowCardPenalty - redCardPenalty;
-
-
     }
-    
+
+    @Override
+    public LinkedHashMap<String, Double> getBreakdown(Player player) {
+        PerformanceRecord r = player.getPerformanceRecord();
+        LinkedHashMap<String, Double> breakdown = new LinkedHashMap<>();
+        breakdown.put("Tackles Won",      r.getTacklesWon()      * 2.5);
+        breakdown.put("Interceptions",    r.getInterceptions()   * 2.5);
+        breakdown.put("Clearances",       r.getClearances()      * 2.0);
+        breakdown.put("Blocks",           r.getBlocks()          * 2.0);
+        breakdown.put("Ball Recoveries",  r.getBallRecoveries()  * 1.5);
+        breakdown.put("Passes Completed", r.getPassesCompleted() * 0.3);
+        breakdown.put("Yellow Cards",     r.getYellowCards()     * -1.5);
+        breakdown.put("Red Cards",        r.getRedCards()        * -4.0);
+        return breakdown;
+    }
 }

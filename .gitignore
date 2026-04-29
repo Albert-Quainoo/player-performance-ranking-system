@@ -29,5 +29,8 @@ bin/
 ### Mac OS ###
 .DS_Store
 
+### Dependencies ###
+lib/
+
 .metadata
 finalProject.iml

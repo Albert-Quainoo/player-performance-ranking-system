@@ -1,7 +1,10 @@
 package ranking;
+import java.util.LinkedHashMap;
 import model.Player;
 
 public interface RankingStrategy{
-    public abstract double calculateScore(Player player);
+    double calculateScore(Player player);
+    LinkedHashMap<String, Double> getBreakdown(Player player);
+
 
 }

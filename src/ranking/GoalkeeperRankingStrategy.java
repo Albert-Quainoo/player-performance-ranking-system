@@ -1,7 +1,9 @@
 package ranking;
 
+import java.util.LinkedHashMap;
 import model.PerformanceRecord;
 import model.Player;
+
 
 public class GoalkeeperRankingStrategy implements RankingStrategy{
     @Override
@@ -18,6 +20,20 @@ public class GoalkeeperRankingStrategy implements RankingStrategy{
 
         return saveScore + cleanSheetScore + blockScore + clearanceScore 
             - concededPenalty - yellowCardPenalty - redCardPenalty;
+    }
+
+    @Override
+    public LinkedHashMap<String, Double> getBreakdown(Player player) {
+        PerformanceRecord r = player.getPerformanceRecord();
+        LinkedHashMap<String, Double> breakdown = new LinkedHashMap<>();
+        breakdown.put("Saves",          r.getSaves()         * 3.0);
+        breakdown.put("Clean Sheets",   r.getCleanSheets()   * 6.0);
+        breakdown.put("Blocks",         r.getBlocks()        * 2.0);
+        breakdown.put("Clearances",     r.getClearances()    * 1.5);
+        breakdown.put("Goals Conceded", r.getGoalsConceded() * -2.5);
+        breakdown.put("Yellow Cards",   r.getYellowCards()   * -1.0);
+        breakdown.put("Red Cards",      r.getRedCards()      * -3.0);
+        return breakdown;
     }
 
 }
