@@ -4,14 +4,25 @@ import model.Player;
 import model.Position;
 import model.Team;
 
+/**
+ * Entry point for the console-mode demo of the Player Performance Ranking System.
+ * Demonstrates team/player creation, performance record updates, and ranking output
+ * without the GUI layer.
+ */
 public class Main {
+
+    /**
+     * Builds sample teams and players, populates stats, and prints rankings to stdout.
+     *
+     * @param args command-line arguments (not used)
+     */
     public static void main(String[] args) {
 
-        // --- Build teams (no country field in your Team constructor) ---
-        Team heartsOfOak = new Team("Hearts of Oak");
-        Team kotoko      = new Team("Asante Kotoko");
+        // --- Build teams ---
+        Team heartsOfOak = new Team("Hearts of Oak", "Ghana");
+        Team kotoko      = new Team("Asante Kotoko",  "Ghana");
 
-        // --- Build players (no team param in your Player constructor) ---
+        // --- Build players ---
         Player kwame  = new Player("Kwame Mensah",  27, 1,  Position.GOALKEEPER);
         Player bright = new Player("Bright Ofori",  24, 5,  Position.DEFENDER);
         Player kofi   = new Player("Kofi Asante",   26, 8,  Position.MIDFIELDER);
@@ -19,7 +30,7 @@ public class Main {
         Player yaw    = new Player("Yaw Darko",     25, 11, Position.FORWARD);
         Player ato    = new Player("Ato Mensah",    28, 4,  Position.DEFENDER);
 
-        // addPlayer handles setTeam internally
+        // addPlayer also calls player.setTeam() internally
         heartsOfOak.addPlayer(kwame);
         heartsOfOak.addPlayer(bright);
         heartsOfOak.addPlayer(kofi);
@@ -68,7 +79,7 @@ public class Main {
         }
 
         // --- Rank all players ---
-        // getPlayers() returns unmodifiable List, so copy to ArrayList for the engine
+        // getPlayers() returns an unmodifiable view, so copy to ArrayList for the engine
         ArrayList<Player> allPlayers = new ArrayList<>();
         allPlayers.addAll(heartsOfOak.getPlayers());
         allPlayers.addAll(kotoko.getPlayers());

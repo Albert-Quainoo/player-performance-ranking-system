@@ -4,10 +4,15 @@ import java.util.LinkedHashMap;
 import model.PerformanceRecord;
 import model.Player;
 
-
-public class GoalkeeperRankingStrategy implements RankingStrategy{
+/**
+ * Scoring strategy for goalkeepers.
+ *
+ * <p>Rewards saves, clean sheets, blocks, and clearances.
+ * Penalises goals conceded and disciplinary cards.
+ */
+public class GoalkeeperRankingStrategy implements RankingStrategy {
     @Override
-    public double calculateScore(Player player){
+    public double calculateScore(Player player) {
         PerformanceRecord pr = player.getPerformanceRecord();
 
         double saveScore = pr.getSaves() * 3.0;

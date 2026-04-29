@@ -17,9 +17,8 @@ public class Player {
     private Team team;
     /** The player's performance record */
     private PerformanceRecord performanceRecord;
-
+    /** The player's nationality */
     private String nationality;
-
 
 
     /**
@@ -95,7 +94,12 @@ public class Player {
         return performanceRecord;
     }
 
-    public String getNationality(){
+    /**
+     * Returns the player's nationality.
+     *
+     * @return the player's nationality, or an empty string if not set
+     */
+    public String getNationality() {
         return nationality;
     }
 
@@ -107,28 +111,53 @@ public class Player {
     public void setTeam(Team team) {
         this.team = team;
     }
-    
-    public void setName(String name){
+
+    /**
+     * Sets the player's name.
+     *
+     * @param name the new name
+     */
+    public void setName(String name) {
         this.name = name;
     }
 
-    public void setAge(int age){
+    /**
+     * Sets the player's age.
+     *
+     * @param age the new age in years
+     */
+    public void setAge(int age) {
         this.age = age;
     }
 
-    public void setJerseyNumber(int number){
+    /**
+     * Sets the player's jersey number.
+     *
+     * @param number the new jersey number
+     */
+    public void setJerseyNumber(int number) {
         this.jerseyNumber = number;
     }
 
-    public void setPosition(Position position){
+    /**
+     * Sets the player's field position.
+     *
+     * @param position the new position
+     */
+    public void setPosition(Position position) {
         this.position = position;
     }
 
-    public void setNationality(String nationality){
+    /**
+     * Sets the player's nationality.
+     *
+     * @param nationality the player's nationality
+     */
+    public void setNationality(String nationality) {
         this.nationality = nationality;
     }
 
-    
+
 
     /**
      * Generates a formatted string representation of the player's information.

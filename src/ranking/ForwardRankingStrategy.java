@@ -4,9 +4,16 @@ import java.util.LinkedHashMap;
 import model.PerformanceRecord;
 import model.Player;
 
-public class ForwardRankingStrategy implements RankingStrategy{
+/**
+ * Scoring strategy for forwards.
+ *
+ * <p>Rewards goals, assists, shots on target, and key passes.
+ * Penalises disciplinary cards.
+ */
+public class ForwardRankingStrategy implements RankingStrategy {
+
     @Override
-    public double calculateScore(Player player){
+    public double calculateScore(Player player) {
         PerformanceRecord pr = player.getPerformanceRecord();
 
         double goalScore = pr.getGoals() * 5.0;
@@ -20,7 +27,7 @@ public class ForwardRankingStrategy implements RankingStrategy{
             + keyPassScore - yellowCardPenalty - redCardPenalty;
     }
 
-     @Override
+    @Override
     public LinkedHashMap<String, Double> getBreakdown(Player player) {
         PerformanceRecord r = player.getPerformanceRecord();
         LinkedHashMap<String, Double> breakdown = new LinkedHashMap<>();
@@ -32,7 +39,4 @@ public class ForwardRankingStrategy implements RankingStrategy{
         breakdown.put("Red Cards",      r.getRedCards()      * -3.0);
         return breakdown;
     }
-
-    
-
 }

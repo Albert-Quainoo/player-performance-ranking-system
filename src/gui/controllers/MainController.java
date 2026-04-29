@@ -23,6 +23,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for the main application view (main-view.fxml).
+ *
+ * <p>Manages the player table, position filter, toolbar actions, and the right-hand
+ * side panel stack (welcome, new-team form, new-player form, edit-player form,
+ * and player detail view). All ranking calculations are delegated to
+ * {@link engine.RankingEngine}.
+ */
 public class MainController implements Initializable {
 
     // Toolbar
@@ -510,6 +518,22 @@ public class MainController implements Initializable {
         statsBox.getChildren().add(row);
     }
 
+    /**
+     * Populates the controller with persisted data before the window is shown.
+     * Called by {@link gui.App} immediately after the FXML controller is set.
+     *
+     * @param teams   the previously saved list of teams
+     * @param players the previously saved list of players
+     */
+    public void loadData(java.util.List<Team> teams, java.util.List<Player> players) {
+        teamList.addAll(teams);
+        masterList.addAll(players);
+        playerData.addAll(players);
+        rerankTable();
+    }
+
+
+
     // ===== HELPERS =====
 
     private void refreshTeamDropdown(ComboBox<String> dropdown, boolean includeNoTeam) {
@@ -532,7 +556,7 @@ public class MainController implements Initializable {
         ArrayList<Player> ranked = engine.rankPlayers(resolveSource());
         playerData.clear();
         playerData.addAll(ranked);
-        String filter     = positionFilter.getValue();
+        String filter = positionFilter.getValue();
         String playerWord = ranked.size() == 1 ? "player" : "players";
         statusLabel.setText("Showing " + ranked.size() + " " + playerWord
             + (filter.equals("All") ? "" : " for: " + filter));
@@ -691,5 +715,23 @@ public class MainController implements Initializable {
     private String normalise(String enumName) {
         return enumName.substring(0, 1).toUpperCase()
              + enumName.substring(1).toLowerCase();
+    }
+
+    /**
+     * Returns the current list of teams. Called by {@link gui.App} on window close to save state.
+     *
+     * @return the list of all teams
+     */
+    public java.util.List<Team> getTeamList() {
+        return teamList;
+    }
+
+    /**
+     * Returns the master list of all players. Called by {@link gui.App} on window close to save state.
+     *
+     * @return the list of all players
+     */
+    public java.util.List<Player> getMasterList() {
+        return masterList;
     }
 }

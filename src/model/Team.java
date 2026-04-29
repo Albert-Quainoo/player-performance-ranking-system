@@ -11,7 +11,7 @@ import java.util.List;
 public class Team {
     /** The name of the team */
     private String teamName;
-
+    /** The country the team represents */
     private String country;
     /** The list of players on the team */
     private List<Player> players;
@@ -36,15 +36,30 @@ public class Team {
         return teamName;
     }
 
-    public String getTeamCountry(){
+    /**
+     * Returns the country the team represents.
+     *
+     * @return the team's country
+     */
+    public String getTeamCountry() {
         return country;
     }
 
-    public void setTeamName(String teamName){
+    /**
+     * Sets the team's name.
+     *
+     * @param teamName the new team name
+     */
+    public void setTeamName(String teamName) {
         this.teamName = teamName;
     }
 
-    public void setCountry(String country){
+    /**
+     * Sets the country the team represents.
+     *
+     * @param country the new country
+     */
+    public void setCountry(String country) {
         this.country = country;
     }
 
@@ -104,6 +119,6 @@ public class Team {
                    .append(player.getPosition())
                    .append(")\n");
         }
-        return builder.toString();}
-
+        return builder.toString();
     }
+}

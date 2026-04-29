@@ -1,0 +1,143 @@
+name: Build Installers
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # allows manual trigger from GitHub UI
+
+jobs:
+
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Liberica JDK Full bundles JavaFX — no separate SDK download needed
+      - name: Set up Liberica JDK 21 with JavaFX
+        uses: actions/setup-java@v4
+        with:
+          distribution: liberica
+          java-version: 21
+          java-package: jdk+fx
+
+      - name: Create output directories
+        run: mkdir -p out/classes out/jar
+
+      - name: Compile sources
+        run: |
+          find src -name "*.java" > sources.txt
+          javac \
+            --module-path "$JAVA_HOME/javafx-mods" \
+            --add-modules javafx.controls,javafx.fxml \
+            -cp "lib/*" \
+            -d out/classes \
+            @sources.txt
+
+      - name: Copy FXML resources
+        run: |
+          cp -r src/gui/views out/classes/gui/
+
+      - name: Create fat JAR
+        run: |
+          # Extract all dependency jars into classes dir
+          cd out/classes
+          for jar in ../../lib/*.jar; do
+            jar xf "$jar"
+          done
+          cd ../..
+          # Package everything into one jar
+          jar --create \
+            --file out/jar/player-ranking-system.jar \
+            --main-class Launcher \
+            -C out/classes .
+
+      - name: Build macOS DMG
+        run: |
+          jpackage \
+            --input out/jar \
+            --name "Player Ranking System" \
+            --main-jar player-ranking-system.jar \
+            --main-class Launcher \
+            --type dmg \
+            --app-version "1.0.0" \
+            --dest out/installer \
+            --java-options "--add-modules javafx.controls,javafx.fxml" \
+            --java-options "--enable-native-access=javafx.graphics"
+
+      - name: Upload macOS installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-installer
+          path: out/installer/*.dmg
+
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Liberica JDK 21 with JavaFX
+        uses: actions/setup-java@v4
+        with:
+          distribution: liberica
+          java-version: 21
+          java-package: jdk+fx
+
+      - name: Create output directories
+        run: |
+          New-Item -ItemType Directory -Force -Path out/classes
+          New-Item -ItemType Directory -Force -Path out/jar
+          New-Item -ItemType Directory -Force -Path out/installer
+
+      - name: Compile sources
+        run: |
+          Get-ChildItem -Path src -Recurse -Filter *.java |
+            Select-Object -ExpandProperty FullName |
+            Out-File -FilePath sources.txt -Encoding utf8
+          javac `
+            --add-modules javafx.controls,javafx.fxml `
+            -cp "lib/*" `
+            -d out/classes `
+            "@sources.txt"
+
+      - name: Copy FXML resources
+        run: |
+          New-Item -ItemType Directory -Force -Path out/classes/gui/views
+          Copy-Item src/gui/views/*.fxml out/classes/gui/views/
+
+      - name: Create fat JAR
+        run: |
+          # Extract dependency jars
+          Set-Location out/classes
+          Get-ChildItem ../../lib/*.jar | ForEach-Object {
+            jar xf $_.FullName
+          }
+          Set-Location ../..
+          jar --create `
+            --file out/jar/player-ranking-system.jar `
+            --main-class Launcher `
+            -C out/classes .
+
+      - name: Build Windows MSI
+        run: |
+          jpackage `
+            --input out/jar `
+            --name "Player Ranking System" `
+            --main-jar player-ranking-system.jar `
+            --main-class Launcher `
+            --type msi `
+            --app-version "1.0.0" `
+            --win-dir-chooser `
+            --win-shortcut `
+            --dest out/installer `
+            --java-options "--add-modules javafx.controls,javafx.fxml" `
+            --java-options "--enable-native-access=javafx.graphics"
+
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: out/installer/*.msi

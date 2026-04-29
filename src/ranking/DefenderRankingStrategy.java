@@ -4,9 +4,16 @@ import java.util.LinkedHashMap;
 import model.PerformanceRecord;
 import model.Player;
 
-public class DefenderRankingStrategy implements RankingStrategy{
+/**
+ * Scoring strategy for defenders.
+ *
+ * <p>Rewards tackles, interceptions, clearances, blocks, ball recoveries,
+ * and passing output. Penalises disciplinary cards.
+ */
+public class DefenderRankingStrategy implements RankingStrategy {
+
     @Override
-    public double calculateScore(Player player){
+    public double calculateScore(Player player) {
         PerformanceRecord pr = player.getPerformanceRecord();
 
         double tackleScore = pr.getTacklesWon() * 2.5;

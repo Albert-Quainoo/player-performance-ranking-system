@@ -4,9 +4,16 @@ import java.util.LinkedHashMap;
 import model.PerformanceRecord;
 import model.Player;
 
-public class MidfielderRankingStrategy implements RankingStrategy{
+/**
+ * Scoring strategy for midfielders.
+ *
+ * <p>Rewards key passes, passing volume, assists, goals, ball recoveries,
+ * and interceptions. Penalises disciplinary cards.
+ */
+public class MidfielderRankingStrategy implements RankingStrategy {
+
     @Override
-    public double calculateScore(Player player){
+    public double calculateScore(Player player) {
         PerformanceRecord pr = player.getPerformanceRecord();
 
         double keyPassScore = pr.getKeyPasses() * 3.0;

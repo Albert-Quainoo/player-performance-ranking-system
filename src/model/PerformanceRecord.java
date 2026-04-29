@@ -55,7 +55,7 @@ public class PerformanceRecord {
         this.interceptions = 0;
         this.blocks = 0;
         this.clearances = 0;
-        this.ballRecoveries =0;
+        this.ballRecoveries = 0;
         this.shotsOnTarget = 0;
         this.yellowCards = 0;
         this.redCards = 0;
@@ -245,9 +245,9 @@ public class PerformanceRecord {
     }
 
     /**
-    * Resets all performance statistics back to zero.
-    * Used to clear a player's record at the start of a new season or evaluation period.
-    */
+     * Resets all performance statistics to zero.
+     * Intended for use at the start of a new season or evaluation period.
+     */
     public void resetStats() {
         this.goals = 0;
         this.assists = 0;
