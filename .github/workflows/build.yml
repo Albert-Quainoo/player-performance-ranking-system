@@ -57,6 +57,8 @@ jobs:
             -C out/classes .
 
       - name: Build macOS DMG
+        env:
+          MACOSX_DEPLOYMENT_TARGET: "13.0"
         run: |
           jpackage \
             --input out/jar \
@@ -65,7 +67,6 @@ jobs:
             --main-class Launcher \
             --type dmg \
             --app-version "1.0.0" \
-            --mac-os-minimum-version 13.0 \
             --dest out/installer \
             --java-options "--add-modules javafx.controls,javafx.fxml" \
             --java-options "--enable-native-access=javafx.graphics"
