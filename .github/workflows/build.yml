@@ -23,7 +23,10 @@ jobs:
           java-package: jdk+fx
 
       - name: Create output directories
-        run: mkdir -p out/classes out/jar
+        run: mkdir -p out/classes out/jar lib
+
+      - name: Download Gson
+        run: curl -L https://repo1.maven.org/maven2/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar -o lib/gson-2.10.1.jar
 
       - name: Compile sources
         run: |
@@ -91,6 +94,10 @@ jobs:
           New-Item -ItemType Directory -Force -Path out/classes
           New-Item -ItemType Directory -Force -Path out/jar
           New-Item -ItemType Directory -Force -Path out/installer
+          New-Item -ItemType Directory -Force -Path lib
+
+      - name: Download Gson
+        run: Invoke-WebRequest -Uri "https://repo1.maven.org/maven2/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar" -OutFile "lib/gson-2.10.1.jar"
 
       - name: Compile sources
         run: |
