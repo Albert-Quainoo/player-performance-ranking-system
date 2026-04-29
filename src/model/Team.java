@@ -59,7 +59,7 @@ public class Team {
      *
      * @param country the new country
      */
-    public void setCountry(String country) {
+    public void setTeamCountry(String country) {
         this.country = country;
     }
 

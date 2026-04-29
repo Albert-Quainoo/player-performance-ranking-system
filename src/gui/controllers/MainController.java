@@ -277,6 +277,11 @@ public class MainController implements Initializable {
             return;
         }
 
+        if (nationality.isEmpty()) {
+            playerErrorLabel.setText("Nationality cannot be empty.");
+            return;
+        }
+
         int age;
         try {
             age = Integer.parseInt(ageStr);
@@ -355,6 +360,11 @@ public class MainController implements Initializable {
 
         if (name.isEmpty()) {
             editErrorLabel.setText("Name cannot be empty.");
+            return;
+        }
+
+        if (nationality.isEmpty()) {
+            editErrorLabel.setText("Nationality cannot be empty.");
             return;
         }
 
