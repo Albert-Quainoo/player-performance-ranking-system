@@ -26,39 +26,70 @@ import java.util.ResourceBundle;
 public class MainController implements Initializable {
 
     // Toolbar
-    @FXML private ComboBox<String> positionFilter;
-    @FXML private VBox breakdownBox;
-    @FXML private Spinner<Integer> topNSpinner;
+    @FXML private ComboBox<String>  positionFilter;
+    @FXML private Spinner<Integer>  topNSpinner;
 
     // Table
-    @FXML private TableView<Player> playerTable;
-    @FXML private TableColumn<Player, String> nameColumn;
-    @FXML private TableColumn<Player, String> positionColumn;
-    @FXML private TableColumn<Player, String> teamColumn;
+    @FXML private TableView<Player>            playerTable;
+    @FXML private TableColumn<Player, String>  nameColumn;
+    @FXML private TableColumn<Player, String>  positionColumn;
+    @FXML private TableColumn<Player, String>  teamColumn;
     @FXML private TableColumn<Player, Integer> ageColumn;
-    @FXML private TableColumn<Player, Double> scoreColumn;
+    @FXML private TableColumn<Player, Double>  scoreColumn;
+
+    // Right panel states
+    @FXML private VBox welcomePanel;
+    @FXML private VBox newTeamPanel;
+    @FXML private VBox newPlayerPanel;
+    @FXML private VBox editPlayerPanel;
+    @FXML private VBox detailPanel;
+
+    // New team form
+    @FXML private TextField teamNameField;
+    @FXML private TextField teamCountryField;
+    @FXML private Label     teamErrorLabel;
+
+    // New player form
+    @FXML private TextField        playerNameField;
+    @FXML private TextField        playerAgeField;
+    @FXML private TextField        playerJerseyField;
+    @FXML private TextField        playerNationalityField;
+    @FXML private ComboBox<String> playerPositionField;
+    @FXML private ComboBox<String> playerTeamField;
+    @FXML private Label            playerErrorLabel;
+
+    // Edit player form
+    @FXML private TextField        editNameField;
+    @FXML private TextField        editAgeField;
+    @FXML private TextField        editJerseyField;
+    @FXML private TextField        editNationalityField;
+    @FXML private ComboBox<String> editPositionField;
+    @FXML private ComboBox<String> editTeamField;
+    @FXML private Label            editErrorLabel;
 
     // Detail panel
-    @FXML private VBox detailPanel;
     @FXML private Label playerNameLabel;
     @FXML private Label positionLabel;
     @FXML private Label teamLabel;
-    @FXML private Label  ageLabel;
-    @FXML private VBox statsBox;
-    @FXML private Label  scoreLabel;
+    @FXML private Label ageLabel;
+    @FXML private Label nationalityLabel;
+    @FXML private VBox  breakdownBox;
+    @FXML private VBox  statsBox;
+    @FXML private Label scoreLabel;
 
     // Update form
-    @FXML private GridPane primaryGrid;
-    @FXML private GridPane  additionalGrid;
+    @FXML private GridPane   primaryGrid;
+    @FXML private GridPane   additionalGrid;
     @FXML private TitledPane additionalPane;
-    @FXML private Label errorLabel;
+    @FXML private Label      errorLabel;
 
     // Status bar
     @FXML private Label statusLabel;
 
-    private final RankingEngine engine = new RankingEngine();
+    private final RankingEngine          engine     = new RankingEngine();
     private final ObservableList<Player> playerData = FXCollections.observableArrayList();
-    private final ArrayList<Player> masterList = new ArrayList<>();
+    private final ArrayList<Player>      masterList = new ArrayList<>();
+    private final ArrayList<Team>        teamList   = new ArrayList<>();
 
     private Player selectedPlayer;
     private final Map<String, TextField> primaryFields    = new LinkedHashMap<>();
@@ -66,24 +97,22 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Wire table columns
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-        positionColumn.setCellValueFactory(new PropertyValueFactory<>("position"));
         ageColumn.setCellValueFactory(new PropertyValueFactory<>("age"));
+
+        positionColumn.setCellValueFactory(data ->
+            new javafx.beans.property.SimpleStringProperty(
+                normalise(data.getValue().getPosition().name())
+            )
+        );
 
         teamColumn.setCellValueFactory(data ->
             new javafx.beans.property.SimpleStringProperty(
                 data.getValue().getTeam() != null
                     ? data.getValue().getTeam().getTeamName()
-                    : "Unassigned"
+                    : "No Team"
             )
         );
-
-        positionColumn.setCellValueFactory(data ->
-            new javafx.beans.property.SimpleStringProperty(
-                normalise(data.getValue().getPosition().name())
-    )
-);
 
         scoreColumn.setCellValueFactory(data ->
             new javafx.beans.property.SimpleDoubleProperty(
@@ -91,50 +120,70 @@ public class MainController implements Initializable {
             ).asObject()
         );
 
-        // Make columns scale with window width
         playerTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        // Position filter
-        // Normalised display labels
         positionFilter.setItems(FXCollections.observableArrayList(
             "All", "Goalkeeper", "Defender", "Midfielder", "Forward"
         ));
         positionFilter.setValue("All");
 
-        // Auto-rank when filter changes
         positionFilter.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) autoRank();
         });
-        // Row selection updates the detail panel
+
+        // Position options reused across new player and edit player forms
+        ObservableList<String> positionOptions = FXCollections.observableArrayList(
+            "Goalkeeper", "Defender", "Midfielder", "Forward"
+        );
+        playerPositionField.setItems(positionOptions);
+        editPositionField.setItems(positionOptions);
+
         playerTable.getSelectionModel().selectedItemProperty().addListener(
             (obs, oldVal, newVal) -> {
                 if (newVal != null) {
                     selectedPlayer = newVal;
+                    showPanel(detailPanel);
                     refreshDetailPanel();
                 }
             }
         );
 
         playerTable.setItems(playerData);
-        loadSampleData();
     }
 
-    private String normalise(String enumName) {
-    return enumName.substring(0, 1).toUpperCase()
-         + enumName.substring(1).toLowerCase();
-}
+    // ===== PANEL STATE MANAGEMENT =====
+
+    private void showPanel(VBox panel) {
+        welcomePanel.setVisible(false);    welcomePanel.setManaged(false);
+        newTeamPanel.setVisible(false);    newTeamPanel.setManaged(false);
+        newPlayerPanel.setVisible(false);  newPlayerPanel.setManaged(false);
+        editPlayerPanel.setVisible(false); editPlayerPanel.setManaged(false);
+        detailPanel.setVisible(false);     detailPanel.setManaged(false);
+
+        panel.setVisible(true);
+        panel.setManaged(true);
+    }
 
     // ===== TOOLBAR HANDLERS =====
 
     @FXML
-    private void handleRankPlayers() {
-        ArrayList<Player> ranked = engine.rankPlayers(resolveSource());
-        playerData.clear();
-        playerData.addAll(ranked);
-        String filter = positionFilter.getValue();
-        String playerWord = ranked.size() == 1 ? "player" : "players";
-        statusLabel.setText("Ranked " + ranked.size() + " " + playerWord
-            + (filter.equals("All") ? "" : " for: " + filter));
+    private void handleNewTeam() {
+        teamNameField.clear();
+        teamCountryField.clear();
+        teamErrorLabel.setText("");
+        showPanel(newTeamPanel);
+    }
+
+    @FXML
+    private void handleNewPlayer() {
+        playerNameField.clear();
+        playerAgeField.clear();
+        playerJerseyField.clear();
+        playerNationalityField.clear();
+        playerPositionField.setValue(null);
+        playerErrorLabel.setText("");
+        refreshTeamDropdown(playerTeamField, true);
+        showPanel(newPlayerPanel);
     }
 
     @FXML
@@ -155,7 +204,7 @@ public class MainController implements Initializable {
         ArrayList<Player> topN = engine.getTopNPlayers(resolveSource(), n);
         playerData.clear();
         playerData.addAll(topN);
-        String filter = positionFilter.getValue();
+        String filter     = positionFilter.getValue();
         String playerWord = topN.size() == 1 ? "player" : "players";
         statusLabel.setText("Showing top " + topN.size() + " " + playerWord
             + (filter.equals("All") ? "" : " for: " + filter));
@@ -166,10 +215,195 @@ public class MainController implements Initializable {
         ArrayList<Player> ranked = engine.rankPlayers(resolveSource());
         playerData.clear();
         playerData.addAll(ranked);
-        String filter = positionFilter.getValue();
+        String filter     = positionFilter.getValue();
         String playerWord = ranked.size() == 1 ? "player" : "players";
         statusLabel.setText("Showing all " + ranked.size() + " " + playerWord
             + (filter.equals("All") ? "" : " for: " + filter));
+    }
+
+    // ===== NEW TEAM FORM =====
+
+    @FXML
+    private void handleCreateTeam() {
+        String name    = teamNameField.getText().trim();
+        String country = teamCountryField.getText().trim();
+
+        if (name.isEmpty()) {
+            teamErrorLabel.setText("Team name cannot be empty.");
+            return;
+        }
+        if (country.isEmpty()) {
+            teamErrorLabel.setText("Country cannot be empty.");
+            return;
+        }
+
+        for (Team t : teamList) {
+            if (t.getTeamName().equalsIgnoreCase(name)) {
+                teamErrorLabel.setText("A team with that name already exists.");
+                return;
+            }
+        }
+
+        teamList.add(new Team(name, country));
+        statusLabel.setText("Team \"" + name + "\" created.");
+        showPanel(welcomePanel);
+    }
+
+    @FXML
+    private void handleCancelForm() {
+        showPanel(selectedPlayer != null ? detailPanel : welcomePanel);
+    }
+
+    // ===== NEW PLAYER FORM =====
+
+    @FXML
+    private void handleCreatePlayer() {
+        String name        = playerNameField.getText().trim();
+        String ageStr      = playerAgeField.getText().trim();
+        String jerseyStr   = playerJerseyField.getText().trim();
+        String nationality = playerNationalityField.getText().trim();
+        String posStr      = playerPositionField.getValue();
+
+        if (name.isEmpty()) {
+            playerErrorLabel.setText("Name cannot be empty.");
+            return;
+        }
+
+        int age;
+        try {
+            age = Integer.parseInt(ageStr);
+            if (age <= 0) throw new NumberFormatException();
+        } catch (NumberFormatException e) {
+            playerErrorLabel.setText("Age must be a positive whole number.");
+            return;
+        }
+
+        int jersey;
+        try {
+            jersey = Integer.parseInt(jerseyStr);
+            if (jersey <= 0) throw new NumberFormatException();
+        } catch (NumberFormatException e) {
+            playerErrorLabel.setText("Jersey number must be a positive whole number.");
+            return;
+        }
+
+        if (posStr == null) {
+            playerErrorLabel.setText("Please select a position.");
+            return;
+        }
+
+        Player player = new Player(name, age, jersey, Position.valueOf(posStr.toUpperCase()));
+        player.setNationality(nationality);
+
+        // Assign team if selected
+        String teamName = playerTeamField.getValue();
+        if (teamName != null && !teamName.equals("No Team")) {
+            for (Team t : teamList) {
+                if (t.getTeamName().equals(teamName)) {
+                    t.addPlayer(player);
+                    break;
+                }
+            }
+        }
+
+        masterList.add(player);
+        playerData.add(player);
+        rerankTable();
+
+        statusLabel.setText("Player \"" + name + "\" added.");
+        showPanel(welcomePanel);
+    }
+
+    // ===== EDIT PLAYER FORM =====
+
+    @FXML
+    private void handleEditPlayer() {
+        if (selectedPlayer == null) return;
+
+        editNameField.setText(selectedPlayer.getName());
+        editAgeField.setText(String.valueOf(selectedPlayer.getAge()));
+        editJerseyField.setText(String.valueOf(selectedPlayer.getJerseyNumber()));
+        editNationalityField.setText(selectedPlayer.getNationality());
+        editPositionField.setValue(normalise(selectedPlayer.getPosition().name()));
+        editErrorLabel.setText("");
+
+        refreshTeamDropdown(editTeamField, false);
+        editTeamField.setValue(
+            selectedPlayer.getTeam() != null
+                ? selectedPlayer.getTeam().getTeamName()
+                : "No Team"
+        );
+
+        showPanel(editPlayerPanel);
+    }
+
+    @FXML
+    private void handleSaveEdit() {
+        String name        = editNameField.getText().trim();
+        String ageStr      = editAgeField.getText().trim();
+        String jerseyStr   = editJerseyField.getText().trim();
+        String nationality = editNationalityField.getText().trim();
+        String posStr      = editPositionField.getValue();
+
+        if (name.isEmpty()) {
+            editErrorLabel.setText("Name cannot be empty.");
+            return;
+        }
+
+        int age;
+        try {
+            age = Integer.parseInt(ageStr);
+            if (age <= 0) throw new NumberFormatException();
+        } catch (NumberFormatException e) {
+            editErrorLabel.setText("Age must be a positive whole number.");
+            return;
+        }
+
+        int jersey;
+        try {
+            jersey = Integer.parseInt(jerseyStr);
+            if (jersey <= 0) throw new NumberFormatException();
+        } catch (NumberFormatException e) {
+            editErrorLabel.setText("Jersey number must be a positive whole number.");
+            return;
+        }
+
+        if (posStr == null) {
+            editErrorLabel.setText("Please select a position.");
+            return;
+        }
+
+        selectedPlayer.setName(name);
+        selectedPlayer.setAge(age);
+        selectedPlayer.setJerseyNumber(jersey);
+        selectedPlayer.setNationality(nationality);
+        selectedPlayer.setPosition(Position.valueOf(posStr.toUpperCase()));
+
+        // Handle team change
+        String newTeamName = editTeamField.getValue();
+        Team   currentTeam = selectedPlayer.getTeam();
+
+        if (newTeamName == null || newTeamName.equals("No Team")) {
+            if (currentTeam != null) currentTeam.removePlayer(selectedPlayer);
+        } else if (currentTeam == null || !currentTeam.getTeamName().equals(newTeamName)) {
+            if (currentTeam != null) currentTeam.removePlayer(selectedPlayer);
+            for (Team t : teamList) {
+                if (t.getTeamName().equals(newTeamName)) {
+                    t.addPlayer(selectedPlayer);
+                    break;
+                }
+            }
+        }
+
+        rerankTable();
+        refreshDetailPanel();
+        showPanel(detailPanel);
+        statusLabel.setText(name + "'s details updated.");
+    }
+
+    @FXML
+    private void handleCancelEdit() {
+        showPanel(detailPanel);
     }
 
     // ===== UPDATE STATS HANDLER =====
@@ -179,7 +413,6 @@ public class MainController implements Initializable {
         if (selectedPlayer == null) return;
 
         errorLabel.setText("");
-
         Map<String, Integer> values = new LinkedHashMap<>();
 
         for (Map.Entry<String, TextField> entry : primaryFields.entrySet()) {
@@ -199,7 +432,6 @@ public class MainController implements Initializable {
         rerankTable();
         statusLabel.setText(selectedPlayer.getName() + "'s stats updated.");
 
-        // Reset all fields back to 0 after submit
         primaryFields.values().forEach(f -> f.setText("0"));
         additionalFields.values().forEach(f -> f.setText("0"));
     }
@@ -209,32 +441,32 @@ public class MainController implements Initializable {
     private void refreshDetailPanel() {
         if (selectedPlayer == null) return;
 
-        detailPanel.setVisible(true);
         playerNameLabel.setText(selectedPlayer.getName());
-        positionLabel.setText("Position: " + normalise(selectedPlayer.getPosition().name()));
-        teamLabel.setText("Team: " + (
-            selectedPlayer.getTeam() != null
-                ? selectedPlayer.getTeam().getTeamName()
-                : "Unassigned"
-        ));
-        ageLabel.setText("Age: " + selectedPlayer.getAge());
-        refreshStatsBox();
-        
+        positionLabel.setText(normalise(selectedPlayer.getPosition().name()));
+        teamLabel.setText(selectedPlayer.getTeam() != null
+            ? selectedPlayer.getTeam().getTeamName()
+            : "No Team");
+        ageLabel.setText("Age " + selectedPlayer.getAge());
+        nationalityLabel.setText(selectedPlayer.getNationality().isEmpty()
+            ? "Nationality unknown"
+            : selectedPlayer.getNationality());
+
         // Score breakdown
         breakdownBox.getChildren().clear();
         LinkedHashMap<String, Double> breakdown = engine.getScoreBreakdown(selectedPlayer);
         double total = 0;
         for (Map.Entry<String, Double> entry : breakdown.entrySet()) {
-            if (entry.getValue() == 0) continue; // Skip zero contributions
-                String sign = entry.getValue() < 0 ? "" : "+";
-                Label line = new Label(String.format("%-20s %s%.2f",
-                    entry.getKey() + ":", sign, entry.getValue()));
-                line.setStyle("-fx-font-family: monospace;");
-                breakdownBox.getChildren().add(line);
-                total += entry.getValue();
+            if (entry.getValue() == 0) continue;
+            String sign = entry.getValue() < 0 ? "" : "+";
+            Label line  = new Label(String.format("%-20s %s%.2f",
+                entry.getKey() + ":", sign, entry.getValue()));
+            line.setStyle("-fx-font-family: monospace;");
+            breakdownBox.getChildren().add(line);
+            total += entry.getValue();
         }
         scoreLabel.setText(String.format("Total Score: %.2f", total));
 
+        refreshStatsBox();
         rebuildUpdateForm();
     }
 
@@ -267,15 +499,50 @@ public class MainController implements Initializable {
 
     private void addStatRow(String label, int value) {
         if (value == 0) return;
-        HBox row = new HBox();
-        Label name = new Label(label);
-        name.setStyle("-fx-text-fill: #555; -fx-font-size: 12;");
+        HBox   row    = new HBox();
+        Label  lName  = new Label(label);
+        lName.setStyle("-fx-text-fill: #555; -fx-font-size: 12;");
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        Label val = new Label(String.valueOf(value));
-        val.setStyle("-fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-font-size: 12;");
-        row.getChildren().addAll(name, spacer, val);
+        Label  lVal   = new Label(String.valueOf(value));
+        lVal.setStyle("-fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-font-size: 12;");
+        row.getChildren().addAll(lName, spacer, lVal);
         statsBox.getChildren().add(row);
+    }
+
+    // ===== HELPERS =====
+
+    private void refreshTeamDropdown(ComboBox<String> dropdown, boolean includeNoTeam) {
+        ObservableList<String> options = FXCollections.observableArrayList();
+        if (includeNoTeam) options.add("No Team");
+        for (Team t : teamList) options.add(t.getTeamName());
+        dropdown.setItems(options);
+        dropdown.setValue(includeNoTeam ? "No Team" : null);
+    }
+
+    private ArrayList<Player> resolveSource() {
+        String filter = positionFilter.getValue();
+        if (filter.equals("All")) return new ArrayList<>(masterList);
+        return engine.filterByPosition(
+            new ArrayList<>(masterList), Position.valueOf(filter.toUpperCase())
+        );
+    }
+
+    private void autoRank() {
+        ArrayList<Player> ranked = engine.rankPlayers(resolveSource());
+        playerData.clear();
+        playerData.addAll(ranked);
+        String filter     = positionFilter.getValue();
+        String playerWord = ranked.size() == 1 ? "player" : "players";
+        statusLabel.setText("Showing " + ranked.size() + " " + playerWord
+            + (filter.equals("All") ? "" : " for: " + filter));
+    }
+
+    private void rerankTable() {
+        ArrayList<Player> ranked = engine.rankPlayers(new ArrayList<>(masterList));
+        playerData.clear();
+        playerData.addAll(ranked);
+        playerTable.refresh();
     }
 
     private void rebuildUpdateForm() {
@@ -331,9 +598,9 @@ public class MainController implements Initializable {
             addAdditional("Ball Recoveries",  "ballRecoveries");
         }
         if (position != Position.GOALKEEPER) {
-            addAdditional("Saves",         "saves");
-            addAdditional("Clean Sheets",  "cleanSheets");
-            addAdditional("Goals Conceded","goalsConceded");
+            addAdditional("Saves",          "saves");
+            addAdditional("Clean Sheets",   "cleanSheets");
+            addAdditional("Goals Conceded", "goalsConceded");
         }
         if (position != Position.DEFENDER && position != Position.GOALKEEPER) {
             addAdditional("Tackles Won",   "tacklesWon");
@@ -347,35 +614,6 @@ public class MainController implements Initializable {
 
         renderGrid(primaryGrid,    primaryFields);
         renderGrid(additionalGrid, additionalFields);
-    }
-
-    // ===== HELPERS =====
-
-    private ArrayList<Player> resolveSource() {
-        String filter = positionFilter.getValue();
-        if (filter.equals("All")) {
-            return new ArrayList<>(masterList);
-        }
-        return engine.filterByPosition(
-            new ArrayList<>(masterList), Position.valueOf(filter.toUpperCase())
-        );
-    }
-
-    private void autoRank(){
-        ArrayList<Player> ranked = engine.rankPlayers(resolveSource());
-        playerData.clear();
-        playerData.addAll(ranked);
-        String filter = positionFilter.getValue();
-        String playerWord = ranked.size() == 1 ? "player" : "players";
-        statusLabel.setText("Showing " + ranked.size() + " " + playerWord
-            + (filter.equals("All") ? "" : " for: " + filter));
-    }
-
-    private void rerankTable() {
-        ArrayList<Player> ranked = engine.rankPlayers(new ArrayList<>(masterList));
-        playerData.clear();
-        playerData.addAll(ranked);
-        playerTable.refresh();
     }
 
     private void addPrimary(String label, String key) {
@@ -450,36 +688,8 @@ public class MainController implements Initializable {
             + camel.replaceAll("([A-Z])", " $1").substring(1);
     }
 
-    private void loadSampleData() {
-        Team heartsOfOak = new Team("Hearts of Oak");
-        Team kotoko      = new Team("Asante Kotoko");
-
-        Player kwame  = new Player("Kwame Mensah",  27, 1,  Position.GOALKEEPER);
-        Player bright = new Player("Bright Ofori",  24, 5,  Position.DEFENDER);
-        Player kofi   = new Player("Kofi Asante",   26, 8,  Position.MIDFIELDER);
-        Player eric   = new Player("Eric Boateng",  23, 9,  Position.FORWARD);
-        Player yaw    = new Player("Yaw Darko",     25, 11, Position.FORWARD);
-
-        heartsOfOak.addPlayer(kwame);
-        heartsOfOak.addPlayer(bright);
-        heartsOfOak.addPlayer(kofi);
-        kotoko.addPlayer(eric);
-        kotoko.addPlayer(yaw);
-
-        kwame.getPerformanceRecord().updateSaves(95);
-        kwame.getPerformanceRecord().updateCleanSheets(12);
-        kwame.getPerformanceRecord().updateGoalsConceded(22);
-        bright.getPerformanceRecord().updateTacklesWon(60);
-        bright.getPerformanceRecord().updateInterceptions(45);
-        kofi.getPerformanceRecord().updateGoals(8);
-        kofi.getPerformanceRecord().updateAssists(12);
-        kofi.getPerformanceRecord().updateKeyPasses(55);
-        eric.getPerformanceRecord().updateGoals(22);
-        eric.getPerformanceRecord().updateAssists(9);
-        yaw.getPerformanceRecord().updateGoals(15);
-        yaw.getPerformanceRecord().updateAssists(5);
-
-        playerData.addAll(kwame, bright, kofi, eric, yaw);
-        masterList.addAll(playerData);
+    private String normalise(String enumName) {
+        return enumName.substring(0, 1).toUpperCase()
+             + enumName.substring(1).toLowerCase();
     }
 }

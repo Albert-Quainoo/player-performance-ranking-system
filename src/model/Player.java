@@ -18,6 +18,9 @@ public class Player {
     /** The player's performance record */
     private PerformanceRecord performanceRecord;
 
+    private String nationality;
+
+
 
     /**
      * Constructs a Player with the specified personal details and position.
@@ -32,6 +35,7 @@ public class Player {
         this.name = name;
         this.age = age;
         this.jerseyNumber = jerseyNumber;
+        this.nationality = "";
         this.position = position;
         this.performanceRecord = new PerformanceRecord();
         this.team = null;
@@ -91,6 +95,10 @@ public class Player {
         return performanceRecord;
     }
 
+    public String getNationality(){
+        return nationality;
+    }
+
     /**
      * Sets the team the player belongs to.
      *
@@ -99,6 +107,28 @@ public class Player {
     public void setTeam(Team team) {
         this.team = team;
     }
+    
+    public void setName(String name){
+        this.name = name;
+    }
+
+    public void setAge(int age){
+        this.age = age;
+    }
+
+    public void setJerseyNumber(int number){
+        this.jerseyNumber = number;
+    }
+
+    public void setPosition(Position position){
+        this.position = position;
+    }
+
+    public void setNationality(String nationality){
+        this.nationality = nationality;
+    }
+
+    
 
     /**
      * Generates a formatted string representation of the player's information.
@@ -106,21 +136,15 @@ public class Player {
      *
      * @return a formatted string containing complete player information
      */
-    public String displayPlayerInfo() {
+     public String displayPlayerInfo() {
         String teamName = (team == null) ? "No Team" : team.getTeamName();
-
         return "Player Information:\n"
-                + "Name: " + name + "\n"
-                + "Age: " + age + "\n"
-                + "Jersey Number: " + jerseyNumber + "\n"
-                + "Position: " + position + "\n"
-                + "Team: " + teamName + "\n"
+                + "Name: "         + name         + "\n"
+                + "Age: "          + age          + "\n"
+                + "Jersey Number: "+ jerseyNumber + "\n"
+                + "Position: "     + position     + "\n"
+                + "Nationality: "  + nationality  + "\n"
+                + "Team: "         + teamName     + "\n"
                 + performanceRecord.display();
     }
-
-
-
-
-
-
 }

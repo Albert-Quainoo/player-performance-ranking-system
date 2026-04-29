@@ -24,12 +24,26 @@
                          -fx-border-color: #d5dbe3; -fx-border-width: 0 0 1 0;"
                   alignment="CENTER_LEFT">
 
+                <!-- Data management -->
+                <Button text="New Team" onAction="#handleNewTeam"
+                        style="-fx-background-color: #1a3a5c; -fx-text-fill: white;
+                               -fx-font-weight: bold; -fx-background-radius: 4;
+                               -fx-cursor: hand; -fx-padding: 5 12;"/>
+                <Button text="New Player" onAction="#handleNewPlayer"
+                        style="-fx-background-color: #1a3a5c; -fx-text-fill: white;
+                               -fx-font-weight: bold; -fx-background-radius: 4;
+                               -fx-cursor: hand; -fx-padding: 5 12;"/>
+
+                <Separator orientation="VERTICAL" prefHeight="24"/>
+
+                <!-- Filter -->
                 <Label text="Position:"
                        style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
                 <ComboBox fx:id="positionFilter" promptText="All Positions" prefWidth="140"/>
 
                 <Separator orientation="VERTICAL" prefHeight="24"/>
 
+                <!-- Top N -->
                 <Label text="Top N:"
                        style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
                 <Spinner fx:id="topNSpinner" prefWidth="68" editable="false">
@@ -38,7 +52,6 @@
                             min="1" max="100" initialValue="3"/>
                     </valueFactory>
                 </Spinner>
-
                 <Button text="Show Top N" onAction="#handleTopN"
                         style="-fx-background-color: #27ae60; -fx-text-fill: white;
                                -fx-font-weight: bold; -fx-background-radius: 4;
@@ -61,22 +74,23 @@
     <!-- ══════════════════════ CENTER ══════════════════════ -->
     <center>
         <SplitPane fx:id="splitPane" dividerPositions="0.52"
-                   style="-fx-background-color: #eef0f4; -fx-padding: 12; -fx-box-border: transparent;">
+                   style="-fx-background-color: #eef0f4; -fx-padding: 12;
+                          -fx-box-border: transparent;">
 
             <!-- Left: player table -->
             <VBox style="-fx-background-color: #ffffff;
                          -fx-border-color: #d5dbe3; -fx-border-radius: 6;
                          -fx-background-radius: 6;">
-
                 <HBox style="-fx-padding: 10 14; -fx-border-color: #d5dbe3;
                              -fx-border-width: 0 0 1 0; -fx-background-radius: 6 6 0 0;"
                       alignment="CENTER_LEFT">
                     <Label text="Players"
-                           style="-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #1a3a5c;"/>
+                           style="-fx-font-size: 13; -fx-font-weight: bold;
+                                  -fx-text-fill: #1a3a5c;"/>
                 </HBox>
-
                 <TableView fx:id="playerTable" VBox.vgrow="ALWAYS"
-                           style="-fx-background-color: transparent; -fx-border-color: transparent;">
+                           style="-fx-background-color: transparent;
+                                  -fx-border-color: transparent;">
                     <columns>
                         <TableColumn fx:id="nameColumn"     text="Name"     prefWidth="155"/>
                         <TableColumn fx:id="positionColumn" text="Position" prefWidth="105"/>
@@ -85,103 +99,235 @@
                         <TableColumn fx:id="scoreColumn"    text="Score"    prefWidth="90"/>
                     </columns>
                     <placeholder>
-                        <Label text="No players to display."
+                        <Label text="No players yet. Use New Team and New Player to get started."
                                style="-fx-text-fill: #aab2bd;"/>
                     </placeholder>
                 </TableView>
             </VBox>
 
-            <!-- Right: detail panel -->
-            <ScrollPane fx:id="detailScrollPane" fitToWidth="true"
+            <!-- Right: panel area -->
+            <ScrollPane fitToWidth="true"
                         style="-fx-background-color: transparent; -fx-background: #eef0f4;">
+                <VBox spacing="0">
 
-                <VBox fx:id="detailPanel" spacing="0" visible="false">
+                    <!-- ── Welcome panel (default) ── -->
+                    <VBox fx:id="welcomePanel" spacing="14"
+                          style="-fx-background-color: #ffffff; -fx-padding: 28;
+                                 -fx-border-color: #d5dbe3; -fx-border-radius: 6;
+                                 -fx-background-radius: 6;">
+                        <Label text="Welcome"
+                               style="-fx-font-size: 18; -fx-font-weight: bold;
+                                      -fx-text-fill: #1a3a5c;"/>
+                        <Label text="Get started by creating a team, then adding players to it."
+                               style="-fx-text-fill: #555; -fx-font-size: 13;"
+                               wrapText="true"/>
+                        <Separator/>
+                        <Label text="1.  Click New Team to create a team."
+                               style="-fx-text-fill: #2c3e50;"/>
+                        <Label text="2.  Click New Player to add players and assign them to a team."
+                               style="-fx-text-fill: #2c3e50;"/>
+                        <Label text="3.  Select a player from the table to view their details and update stats."
+                               style="-fx-text-fill: #2c3e50;" wrapText="true"/>
+                    </VBox>
 
-                    <!-- Player identity card -->
-                    <VBox style="-fx-background-color: #1a3a5c; -fx-padding: 16 18;
-                                 -fx-background-radius: 6 6 0 0;">
-                        <Label fx:id="playerNameLabel"
-                               style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: white;"/>
-                        <HBox spacing="18" style="-fx-padding: 5 0 0 0;">
-                            <Label fx:id="positionLabel"
-                                   style="-fx-text-fill: #a8c6e8; -fx-font-size: 12;"/>
-                            <Label fx:id="teamLabel"
-                                   style="-fx-text-fill: #a8c6e8; -fx-font-size: 12;"/>
-                            <Label fx:id="ageLabel"
-                                   style="-fx-text-fill: #a8c6e8; -fx-font-size: 12;"/>
+                    <!-- ── New Team form ── -->
+                    <VBox fx:id="newTeamPanel" spacing="14" visible="false" managed="false"
+                          style="-fx-background-color: #ffffff; -fx-padding: 20;
+                                 -fx-border-color: #d5dbe3; -fx-border-radius: 6;
+                                 -fx-background-radius: 6;">
+                        <Label text="New Team"
+                               style="-fx-font-size: 16; -fx-font-weight: bold;
+                                      -fx-text-fill: #1a3a5c;"/>
+                        <Separator/>
+                        <Label text="Team Name:" style="-fx-font-weight: bold;"/>
+                        <TextField fx:id="teamNameField" promptText="e.g. Hearts of Oak"/>
+                        <Label text="Country:" style="-fx-font-weight: bold;"/>
+                        <TextField fx:id="teamCountryField" promptText="e.g. Ghana"/>
+                        <Label fx:id="teamErrorLabel"
+                               style="-fx-text-fill: #c0392b;" wrapText="true"/>
+                        <HBox spacing="10">
+                            <Button text="Create Team" onAction="#handleCreateTeam"
+                                    style="-fx-background-color: #27ae60; -fx-text-fill: white;
+                                           -fx-font-weight: bold; -fx-background-radius: 4;
+                                           -fx-cursor: hand; -fx-padding: 6 14;"/>
+                            <Button text="Cancel" onAction="#handleCancelForm"
+                                    style="-fx-background-color: #95a5a6; -fx-text-fill: white;
+                                           -fx-font-weight: bold; -fx-background-radius: 4;
+                                           -fx-cursor: hand; -fx-padding: 6 14;"/>
                         </HBox>
                     </VBox>
 
-                    <!-- Score banner -->
-                    <HBox style="-fx-background-color: #27ae60; -fx-padding: 8 18;">
-                        <Label fx:id="scoreLabel"
-                               style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: white;"/>
-                    </HBox>
-
-                    <!-- Body -->
-                    <VBox spacing="14"
-                          style="-fx-background-color: #ffffff; -fx-padding: 16;
-                                 -fx-border-color: #d5dbe3; -fx-border-width: 0 1 1 1;
-                                 -fx-background-radius: 0 0 6 6;">
-
-                        <!-- Score breakdown -->
-                        <VBox spacing="6">
-                            <Label text="Score Breakdown"
-                                   style="-fx-font-weight: bold; -fx-font-size: 12;
-                                          -fx-text-fill: #555;"/>
-                            <VBox fx:id="breakdownBox" spacing="2"
-                                  style="-fx-background-color: #f4f6f8; -fx-padding: 10;
-                                         -fx-background-radius: 4;"/>
-                        </VBox>
-
+                    <!-- ── New Player form ── -->
+                    <VBox fx:id="newPlayerPanel" spacing="14" visible="false" managed="false"
+                          style="-fx-background-color: #ffffff; -fx-padding: 20;
+                                 -fx-border-color: #d5dbe3; -fx-border-radius: 6;
+                                 -fx-background-radius: 6;">
+                        <Label text="New Player"
+                               style="-fx-font-size: 16; -fx-font-weight: bold;
+                                      -fx-text-fill: #1a3a5c;"/>
                         <Separator/>
-
-                        <!-- Performance record -->
-                        <VBox spacing="6">
-                            <Label text="Performance Record"
-                                   style="-fx-font-weight: bold; -fx-font-size: 12;
-                                          -fx-text-fill: #555;"/>
-                            <VBox fx:id="statsBox" spacing="2"
-                                  style="-fx-background-color: #f4f6f8; -fx-padding: 10;
-                                         -fx-background-radius: 4;"/>
-                        </VBox>
-
-                        <Separator/>
-
-                        <!-- Update form -->
-                        <VBox spacing="8">
-                            <Label text="Update Stats"
-                                   style="-fx-font-weight: bold; -fx-font-size: 12;
-                                          -fx-text-fill: #555;"/>
-                            <Label text="Values are added on top of existing stats."
-                                   style="-fx-font-style: italic; -fx-font-size: 11;
-                                          -fx-text-fill: #888;"/>
-
-                            <Label text="Primary Stats"
-                                   style="-fx-font-weight: bold; -fx-font-size: 11;
-                                          -fx-text-fill: #1a3a5c;"/>
-                            <GridPane fx:id="primaryGrid" hgap="10" vgap="8"/>
-
-                            <TitledPane fx:id="additionalPane"
-                                        text="Additional Stats" expanded="false">
-                                <GridPane fx:id="additionalGrid"
-                                          hgap="10" vgap="8"
-                                          style="-fx-padding: 10;"/>
-                            </TitledPane>
-
-                            <Label fx:id="errorLabel"
-                                   style="-fx-text-fill: #c0392b;" wrapText="true"/>
-
-                            <Button text="Submit Update"
-                                    onAction="#handleSubmitUpdate"
-                                    maxWidth="Infinity"
+                        <Label text="Name:" style="-fx-font-weight: bold;"/>
+                        <TextField fx:id="playerNameField" promptText="e.g. Kwame Mensah"/>
+                        <Label text="Age:" style="-fx-font-weight: bold;"/>
+                        <TextField fx:id="playerAgeField" promptText="e.g. 24"/>
+                        <Label text="Jersey Number:" style="-fx-font-weight: bold;"/>
+                        <TextField fx:id="playerJerseyField" promptText="e.g. 9"/>
+                        <Label text="Nationality:" style="-fx-font-weight: bold;"/>
+                        <TextField fx:id="playerNationalityField" promptText="e.g. Ghanaian"/>
+                        <Label text="Position:" style="-fx-font-weight: bold;"/>
+                        <ComboBox fx:id="playerPositionField" prefWidth="200"
+                                  promptText="Select position"/>
+                        <Label text="Team (optional):" style="-fx-font-weight: bold;"/>
+                        <ComboBox fx:id="playerTeamField" prefWidth="200"
+                                  promptText="No Team"/>
+                        <Label fx:id="playerErrorLabel"
+                               style="-fx-text-fill: #c0392b;" wrapText="true"/>
+                        <HBox spacing="10">
+                            <Button text="Add Player" onAction="#handleCreatePlayer"
                                     style="-fx-background-color: #27ae60; -fx-text-fill: white;
-                                           -fx-font-weight: bold; -fx-font-size: 13;
-                                           -fx-background-radius: 4; -fx-padding: 8 0;
-                                           -fx-cursor: hand;"/>
+                                           -fx-font-weight: bold; -fx-background-radius: 4;
+                                           -fx-cursor: hand; -fx-padding: 6 14;"/>
+                            <Button text="Cancel" onAction="#handleCancelForm"
+                                    style="-fx-background-color: #95a5a6; -fx-text-fill: white;
+                                           -fx-font-weight: bold; -fx-background-radius: 4;
+                                           -fx-cursor: hand; -fx-padding: 6 14;"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- ── Edit Player form ── -->
+                    <VBox fx:id="editPlayerPanel" spacing="14" visible="false" managed="false"
+                          style="-fx-background-color: #ffffff; -fx-padding: 20;
+                                 -fx-border-color: #d5dbe3; -fx-border-radius: 6;
+                                 -fx-background-radius: 6;">
+                        <Label text="Edit Player"
+                               style="-fx-font-size: 16; -fx-font-weight: bold;
+                                      -fx-text-fill: #1a3a5c;"/>
+                        <Separator/>
+                        <Label text="Name:" style="-fx-font-weight: bold;"/>
+                        <TextField fx:id="editNameField"/>
+                        <Label text="Age:" style="-fx-font-weight: bold;"/>
+                        <TextField fx:id="editAgeField"/>
+                        <Label text="Jersey Number:" style="-fx-font-weight: bold;"/>
+                        <TextField fx:id="editJerseyField"/>
+                        <Label text="Nationality:" style="-fx-font-weight: bold;"/>
+                        <TextField fx:id="editNationalityField"/>
+                        <Label text="Position:" style="-fx-font-weight: bold;"/>
+                        <ComboBox fx:id="editPositionField" prefWidth="200"/>
+                        <Label text="Team:" style="-fx-font-weight: bold;"/>
+                        <ComboBox fx:id="editTeamField" prefWidth="200"/>
+                        <Label fx:id="editErrorLabel"
+                               style="-fx-text-fill: #c0392b;" wrapText="true"/>
+                        <HBox spacing="10">
+                            <Button text="Save Changes" onAction="#handleSaveEdit"
+                                    style="-fx-background-color: #2980b9; -fx-text-fill: white;
+                                           -fx-font-weight: bold; -fx-background-radius: 4;
+                                           -fx-cursor: hand; -fx-padding: 6 14;"/>
+                            <Button text="Cancel" onAction="#handleCancelEdit"
+                                    style="-fx-background-color: #95a5a6; -fx-text-fill: white;
+                                           -fx-font-weight: bold; -fx-background-radius: 4;
+                                           -fx-cursor: hand; -fx-padding: 6 14;"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- ── Player detail panel ── -->
+                    <VBox fx:id="detailPanel" spacing="0" visible="false" managed="false">
+
+                        <!-- Identity card -->
+                        <VBox style="-fx-background-color: #1a3a5c; -fx-padding: 16 18;
+                                     -fx-background-radius: 6 6 0 0;">
+                            <Label fx:id="playerNameLabel"
+                                   style="-fx-font-size: 20; -fx-font-weight: bold;
+                                          -fx-text-fill: white;"/>
+                            <HBox spacing="18" style="-fx-padding: 5 0 0 0;">
+                                <Label fx:id="positionLabel"
+                                       style="-fx-text-fill: #a8c6e8; -fx-font-size: 12;"/>
+                                <Label fx:id="teamLabel"
+                                       style="-fx-text-fill: #a8c6e8; -fx-font-size: 12;"/>
+                                <Label fx:id="ageLabel"
+                                       style="-fx-text-fill: #a8c6e8; -fx-font-size: 12;"/>
+                                <Label fx:id="nationalityLabel"
+                                       style="-fx-text-fill: #a8c6e8; -fx-font-size: 12;"/>
+                            </HBox>
                         </VBox>
 
+                        <!-- Score banner -->
+                        <HBox style="-fx-background-color: #27ae60; -fx-padding: 8 18;">
+                            <Label fx:id="scoreLabel"
+                                   style="-fx-font-size: 14; -fx-font-weight: bold;
+                                          -fx-text-fill: white;"/>
+                        </HBox>
+
+                        <!-- Body -->
+                        <VBox spacing="14"
+                              style="-fx-background-color: #ffffff; -fx-padding: 16;
+                                     -fx-border-color: #d5dbe3; -fx-border-width: 0 1 1 1;
+                                     -fx-background-radius: 0 0 6 6;">
+
+                            <!-- Edit Player button -->
+                            <Button text="Edit Player" onAction="#handleEditPlayer"
+                                    maxWidth="Infinity"
+                                    style="-fx-background-color: #2980b9; -fx-text-fill: white;
+                                           -fx-font-weight: bold; -fx-background-radius: 4;
+                                           -fx-cursor: hand; -fx-padding: 5 12;"/>
+
+                            <Separator/>
+
+                            <!-- Score breakdown -->
+                            <VBox spacing="6">
+                                <Label text="Score Breakdown"
+                                       style="-fx-font-weight: bold; -fx-font-size: 12;
+                                              -fx-text-fill: #555;"/>
+                                <VBox fx:id="breakdownBox" spacing="2"
+                                      style="-fx-background-color: #f4f6f8; -fx-padding: 10;
+                                             -fx-background-radius: 4;"/>
+                            </VBox>
+
+                            <Separator/>
+
+                            <!-- Performance record -->
+                            <VBox spacing="6">
+                                <Label text="Performance Record"
+                                       style="-fx-font-weight: bold; -fx-font-size: 12;
+                                              -fx-text-fill: #555;"/>
+                                <VBox fx:id="statsBox" spacing="2"
+                                      style="-fx-background-color: #f4f6f8; -fx-padding: 10;
+                                             -fx-background-radius: 4;"/>
+                            </VBox>
+
+                            <Separator/>
+
+                            <!-- Update stats form -->
+                            <VBox spacing="8">
+                                <Label text="Update Stats"
+                                       style="-fx-font-weight: bold; -fx-font-size: 12;
+                                              -fx-text-fill: #555;"/>
+                                <Label text="Values are added on top of existing stats."
+                                       style="-fx-font-style: italic; -fx-font-size: 11;
+                                              -fx-text-fill: #888;"/>
+                                <Label text="Primary Stats"
+                                       style="-fx-font-weight: bold; -fx-font-size: 11;
+                                              -fx-text-fill: #1a3a5c;"/>
+                                <GridPane fx:id="primaryGrid" hgap="10" vgap="8"/>
+                                <TitledPane fx:id="additionalPane"
+                                            text="Additional Stats" expanded="false">
+                                    <GridPane fx:id="additionalGrid"
+                                              hgap="10" vgap="8"
+                                              style="-fx-padding: 10;"/>
+                                </TitledPane>
+                                <Label fx:id="errorLabel"
+                                       style="-fx-text-fill: #c0392b;" wrapText="true"/>
+                                <Button text="Submit Update"
+                                        onAction="#handleSubmitUpdate"
+                                        maxWidth="Infinity"
+                                        style="-fx-background-color: #27ae60; -fx-text-fill: white;
+                                               -fx-font-weight: bold; -fx-font-size: 13;
+                                               -fx-background-radius: 4; -fx-padding: 8 0;
+                                               -fx-cursor: hand;"/>
+                            </VBox>
+
+                        </VBox>
                     </VBox>
+
                 </VBox>
             </ScrollPane>
 
