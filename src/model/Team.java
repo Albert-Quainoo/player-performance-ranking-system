@@ -17,66 +17,38 @@ public class Team {
     private List<Player> players;
 
     /**
-     * Constructs a Team with the specified name and initializes an empty player list.
+     * Creates a team with the given name and country.
      *
      * @param teamName the name of the team
+     * @param country  the country the team is from
      */
     public Team(String teamName, String country) {
         this.teamName = teamName;
-        this.country = country;
-        this.players = new ArrayList<>();
+        this.country  = country;
+        this.players  = new ArrayList<>();
     }
 
-    /**
-     * Returns the name of the team.
-     *
-     * @return the team's name
-     */
-    public String getTeamName() {
-        return teamName;
-    }
+    // ===== GETTERS =====
+
+    /** Returns the team's name. */
+    public String getTeamName() { return teamName; }
+
+    /** Returns the country the team is from. */
+    public String getTeamCountry() { return country; }
+
+    /** Returns a read-only view of the players on this team. */
+    public List<Player> getPlayers() { return Collections.unmodifiableList(players); }
+
+    // ===== SETTERS =====
+
+    public void setTeamName(String teamName)    { this.teamName = teamName; }
+    public void setTeamCountry(String country)  { this.country  = country;  }
 
     /**
-     * Returns the country the team represents.
+     * Adds a player to the team. Also sets the player's team to this team.
+     * Does nothing if the player is null or already on this team.
      *
-     * @return the team's country
-     */
-    public String getTeamCountry() {
-        return country;
-    }
-
-    /**
-     * Sets the team's name.
-     *
-     * @param teamName the new team name
-     */
-    public void setTeamName(String teamName) {
-        this.teamName = teamName;
-    }
-
-    /**
-     * Sets the country the team represents.
-     *
-     * @param country the new country
-     */
-    public void setTeamCountry(String country) {
-        this.country = country;
-    }
-
-    /**
-     * Returns an unmodifiable list of all players on the team.
-     *
-     * @return an unmodifiable list of players
-     */
-    public List<Player> getPlayers() {
-        return Collections.unmodifiableList(players);
-    }
-
-    /**
-     * Adds a player to the team if they are not already a member.
-     * Sets the player's team affiliation to this team.
-     *
-     * @param player the player to add (null values are ignored)
+     * @param player the player to add
      */
     public void addPlayer(Player player) {
         if (player == null) {
@@ -90,8 +62,7 @@ public class Team {
     }
 
     /**
-     * Removes a player from the team.
-     * Clears the player's team affiliation.
+     * Removes a player from the team and clears their team reference.
      *
      * @param player the player to remove
      */
@@ -101,12 +72,7 @@ public class Team {
         }
     }
 
-    /**
-     * Generates a formatted string representation of the team.
-     * Displays the team name and a list of all players with their positions.
-     *
-     * @return a formatted string containing team and player information
-     */
+    /** Returns a formatted summary of the team and its players. */
     public String displayTeam() {
         StringBuilder builder = new StringBuilder();
         builder.append("Team: ").append(teamName)

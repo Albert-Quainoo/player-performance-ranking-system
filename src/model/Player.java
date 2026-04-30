@@ -40,132 +40,40 @@ public class Player {
         this.team = null;
     }
 
-    /**
-     * Returns the player's name.
-     *
-     * @return the player's name
-     */
-    public String getName() {
-        return name;
-    }
+    // ===== GETTERS =====
 
-    /**
-     * Returns the player's age in years.
-     *
-     * @return the player's age
-     */
-    public int getAge() {
-        return age;
-    }
+    /** Returns the player's name. */
+    public String getName() { return name; }
 
-    /**
-     * Returns the player's jersey number.
-     *
-     * @return the jersey number
-     */
-    public int getJerseyNumber() {
-        return jerseyNumber;
-    }
+    /** Returns the player's age. */
+    public int getAge() { return age; }
 
-    /**
-     * Returns the player's position on the field.
-     *
-     * @return the player's position
-     */
-    public Position getPosition() {
-        return position;
-    }
+    /** Returns the player's jersey number. */
+    public int getJerseyNumber() { return jerseyNumber; }
 
-    /**
-     * Returns the team the player currently belongs to.
-     *
-     * @return the player's team, or null if not assigned to a team
-     */
-    public Team getTeam() {
-        return team;
-    }
+    /** Returns the player's position on the field. */
+    public Position getPosition() { return position; }
 
-    /**
-     * Returns the player's performance record.
-     *
-     * @return the player's performance record
-     */
-    public PerformanceRecord getPerformanceRecord() {
-        return performanceRecord;
-    }
+    /** Returns the team the player belongs to, or null if unassigned. */
+    public Team getTeam() { return team; }
 
-    /**
-     * Returns the player's nationality.
-     *
-     * @return the player's nationality, or an empty string if not set
-     */
-    public String getNationality() {
-        return nationality;
-    }
+    /** Returns the player's performance record. */
+    public PerformanceRecord getPerformanceRecord() { return performanceRecord; }
 
-    /**
-     * Sets the team the player belongs to.
-     *
-     * @param team the team to assign to the player
-     */
-    public void setTeam(Team team) {
-        this.team = team;
-    }
+    /** Returns the player's nationality. */
+    public String getNationality() { return nationality; }
 
-    /**
-     * Sets the player's name.
-     *
-     * @param name the new name
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
+    // ===== SETTERS =====
 
-    /**
-     * Sets the player's age.
-     *
-     * @param age the new age in years
-     */
-    public void setAge(int age) {
-        this.age = age;
-    }
+    public void setTeam(Team team)               { this.team          = team;          }
+    public void setName(String name)             { this.name          = name;          }
+    public void setAge(int age)                  { this.age           = age;           }
+    public void setJerseyNumber(int number)      { this.jerseyNumber  = number;        }
+    public void setPosition(Position position)   { this.position      = position;      }
+    public void setNationality(String nationality){ this.nationality   = nationality;   }
 
-    /**
-     * Sets the player's jersey number.
-     *
-     * @param number the new jersey number
-     */
-    public void setJerseyNumber(int number) {
-        this.jerseyNumber = number;
-    }
-
-    /**
-     * Sets the player's field position.
-     *
-     * @param position the new position
-     */
-    public void setPosition(Position position) {
-        this.position = position;
-    }
-
-    /**
-     * Sets the player's nationality.
-     *
-     * @param nationality the player's nationality
-     */
-    public void setNationality(String nationality) {
-        this.nationality = nationality;
-    }
-
-
-
-    /**
-     * Generates a formatted string representation of the player's information.
-     * Displays personal details, team affiliation, and performance statistics.
-     *
-     * @return a formatted string containing complete player information
-     */
-     public String displayPlayerInfo() {
+    /** Returns a formatted summary of the player's details and performance stats. */
+    public String displayPlayerInfo() {
         String teamName = (team == null) ? "No Team" : team.getTeamName();
         return "Player Information:\n"
                 + "Name: "         + name         + "\n"

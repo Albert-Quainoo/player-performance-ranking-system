@@ -24,12 +24,9 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 /**
- * Controller for the main application view (main-view.fxml).
- *
- * <p>Manages the player table, position filter, toolbar actions, and the right-hand
- * side panel stack (welcome, new-team form, new-player form, edit-player form,
- * and player detail view). All ranking calculations are delegated to
- * {@link engine.RankingEngine}.
+ * Controls the main application window (main-view.fxml).
+ * Handles the player table, toolbar buttons, forms for creating and editing
+ * players and teams, and the player detail panel.
  */
 public class MainController implements Initializable {
 
@@ -529,11 +526,10 @@ public class MainController implements Initializable {
     }
 
     /**
-     * Populates the controller with persisted data before the window is shown.
-     * Called by {@link gui.App} immediately after the FXML controller is set.
+     * Called by App to load saved data into the controller before the window opens.
      *
-     * @param teams   the previously saved list of teams
-     * @param players the previously saved list of players
+     * @param teams   the saved list of teams
+     * @param players the saved list of players
      */
     public void loadData(java.util.List<Team> teams, java.util.List<Player> players) {
         teamList.addAll(teams);
@@ -541,8 +537,6 @@ public class MainController implements Initializable {
         playerData.addAll(players);
         rerankTable();
     }
-
-
 
     // ===== HELPERS =====
 
@@ -727,20 +721,12 @@ public class MainController implements Initializable {
              + enumName.substring(1).toLowerCase();
     }
 
-    /**
-     * Returns the current list of teams. Called by {@link gui.App} on window close to save state.
-     *
-     * @return the list of all teams
-     */
+    /** Returns all teams — called by App when the window closes to save data. */
     public java.util.List<Team> getTeamList() {
         return teamList;
     }
 
-    /**
-     * Returns the master list of all players. Called by {@link gui.App} on window close to save state.
-     *
-     * @return the list of all players
-     */
+    /** Returns all players — called by App when the window closes to save data. */
     public java.util.List<Player> getMasterList() {
         return masterList;
     }

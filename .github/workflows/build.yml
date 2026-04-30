@@ -8,7 +8,7 @@ on:
 jobs:
 
   build-macos:
-    runs-on: macos-latest
+    runs-on: macos-13  # Intel x86_64 — runs natively on Intel Macs, via Rosetta on Apple Silicon
 
     steps:
       - name: Checkout repository

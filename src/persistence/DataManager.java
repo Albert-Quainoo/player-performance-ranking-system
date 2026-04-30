@@ -17,14 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Handles saving and loading application data to and from a JSON file on disk.
+ * Saves and loads all application data to/from a JSON file on disk.
+ * Data is stored in ~/player-ranking-system/data.json.
  *
- * <p>To avoid circular references between {@link model.Player} and {@link model.Team},
- * serialisation uses flat Data Transfer Objects (DTOs). Teams are written first;
- * players reference their team by name only, which is resolved back into object
- * references during loading.
- *
- * <p>Data is persisted to {@code ~/player-ranking-system/data.json}.
+ * Teams and players are saved separately to avoid storing duplicate nested objects.
+ * When loading, teams are rebuilt first, then players are linked back to their team by name.
  */
 public class DataManager {
 
@@ -34,8 +31,8 @@ public class DataManager {
 
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    // ===== DATA TRANSFER OBJECTS =====
-    // Flat representations that avoid circular references between Player and Team
+    // ===== HELPER CLASSES FOR JSON SERIALIZATION =====
+    // Simple flat classes used only for reading/writing JSON — no game logic here
 
     private static class TeamDTO {
         String name;
@@ -53,9 +50,9 @@ public class DataManager {
         int    jerseyNumber;
         String position;
         String nationality;
-        String teamName;       // reference by name only — no nested Team object
+        String teamName;       // stored by name to avoid nesting the full Team object
 
-        // PerformanceRecord fields flattened in
+        // Performance stats stored directly in the player record
         int goals;
         int assists;
         int keyPasses;
@@ -81,12 +78,10 @@ public class DataManager {
     // ===== SAVE =====
 
     /**
-     * Serialises the given teams and players to JSON and writes them to disk.
-     * Creates the save directory if it does not already exist.
-     * Any I/O errors are reported to stderr and silently swallowed.
+     * Saves all teams and players to the JSON file.
      *
-     * @param teams   the list of teams to persist
-     * @param players the list of players to persist
+     * @param teams   the list of teams to save
+     * @param players the list of players to save
      */
     public void save(List<Team> teams, List<Player> players) {
         SaveData data = new SaveData();
@@ -142,11 +137,10 @@ public class DataManager {
     // ===== LOAD =====
 
     /**
-     * Reads and deserialises the JSON save file, reconstructing teams and players
-     * with their performance records and team assignments restored.
+     * Loads teams and players from the save file.
+     * Returns empty lists if the file does not exist yet (first launch).
      *
-     * @return a {@link LoadResult} containing the restored teams and players,
-     *         or empty lists if no save file exists or loading fails
+     * @return a LoadResult containing the restored teams and players
      */
     public LoadResult load() {
         Path path = Paths.get(SAVE_FILE);
@@ -218,22 +212,11 @@ public class DataManager {
 
     // ===== LOAD RESULT =====
 
-    /**
-     * Simple carrier returned by {@link #load()} so both lists can be returned at once.
-     */
+    /** Holds the teams and players returned by load() so both can be passed at once. */
     public static class LoadResult {
-
-        /** The restored list of teams. */
-        public final List<Team> teams;
-        /** The restored list of players, with team assignments already applied. */
+        public final List<Team>   teams;
         public final List<Player> players;
 
-        /**
-         * Constructs a LoadResult with the given teams and players.
-         *
-         * @param teams   the list of restored teams
-         * @param players the list of restored players
-         */
         public LoadResult(List<Team> teams, List<Player> players) {
             this.teams   = teams;
             this.players = players;

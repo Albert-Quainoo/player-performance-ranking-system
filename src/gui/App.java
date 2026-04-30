@@ -9,19 +9,16 @@ import persistence.DataManager;
 import persistence.DataManager.LoadResult;
 
 /**
- * JavaFX application entry point for the Player Performance Ranking System.
- *
- * <p>Loads the main FXML view, restores persisted data via {@link persistence.DataManager},
- * and registers an auto-save hook that fires when the window is closed.
+ * Launches the JavaFX application window.
+ * Loads saved data on startup and saves it automatically when the window is closed.
  */
 public class App extends Application {
 
     /**
-     * Initialises and displays the primary stage.
-     * Persisted data is loaded and injected into the controller before the window appears.
+     * Builds and shows the main window.
      *
-     * @param stage the primary stage provided by the JavaFX runtime
-     * @throws Exception if the FXML resource cannot be loaded
+     * @param stage the primary window provided by JavaFX
+     * @throws Exception if the FXML file cannot be loaded
      */
     @Override
     public void start(Stage stage) throws Exception {
@@ -33,8 +30,7 @@ public class App extends Application {
 
         MainController controller = loader.getController();
 
-        // Load persisted data and pass it to the controller
-        // before the window is shown — zero latency on display
+        // Load saved data and pass it to the controller before the window opens
         DataManager dataManager = new DataManager();
         LoadResult result = dataManager.load();
         controller.loadData(result.teams, result.players);
